@@ -118,7 +118,9 @@ wrttxt2		ld	a,(hl)
 mglp1		push	hl
 		ld	c,4
 mglp2		ld	b,8
-mglp3		rr	(hl)
+		ex	af,af'
+		ld	a,(hl)
+mglp3		rl	a
 		jr	c,mglp4
 		ex	de,hl
 		ld	(hl),%01111111
@@ -128,6 +130,7 @@ mglp4		ex	de,hl
 mglp5		ex	de,hl
 		inc	de
 		djnz	mglp3
+		ex	af,af'
 		inc	hl
 		dec	c
 		jr	nz,mglp2
@@ -224,7 +227,8 @@ wrcpyr1		ld	a,(hl)
 wrcpyr2		res	7,a
 		call	prtchr
 		ret	
-sopti		ld	a,(FLAG)
+sopti		call	wkey
+		ld	a,(FLAG)
 		and	a
 		jr	nz,saveo
 		ld	a,$ff
@@ -282,14 +286,21 @@ rcl		ld	a,(hl)
 		jp	next
 edit		xor	a
 		ld	(crd),a
-edlp		call	wrttxt
+edlp		ld	hl,26
+		ld	b,0
+edwa2		djnz	edwa2
+		dec	hl
+		ld	a,h
+		or	l
+		jr	nz,edwa2
+		call	wrttxt
 		ld	a,(crd)
 		ld	e,a
 		ld	d,0
 		ld	hl,23040
 		add	hl,de
 		ld	a,(hl)
-		xor	%00001001
+		xor	%00010010
 		ld	(hl),a
 		ld	bc,57342
 		in	a,(c)
@@ -303,7 +314,7 @@ edlp		call	wrttxt
 p1		rra	
 		jr	c,p2
 		ld	a,(crd)
-		inc	a
+		dec	a
 		ld	(crd),a
 p2		ld	bc,64510
 		in	a,(c)
@@ -337,7 +348,8 @@ f0l1		ld	a,(hl)
 		ld	bc,8
 		ldir	
 		call	putwrk
-edp		jr	edlp
+		call	wkey
+edp		jp	edlp
 f1		rra	
 		jr	c,f2
 		call	getwrk
@@ -350,9 +362,11 @@ f1l2		rra
 		rl	c
 		dec	d
 		jr	nz,f1l2
+		ld	(hl),c
 		inc	hl
 		djnz	f1l1
 		call	putwrk
+		call	wkey
 		jr	edp
 f2		rra	
 		jr	c,f3
@@ -372,7 +386,7 @@ f3		rra
 ep		jr	edp
 f4		rra	
 		jr	c,f5
-		ld	hl,stre
+		ld	hl,work
 		ld	b,8
 f4l1		ld	(hl),0
 		inc	hl
@@ -400,6 +414,7 @@ f6		rra
 		xor	(hl)
 		ld	(hl),a
 		call	putwrk
+		call	wkey
 ed		jr	ep
 f7		rra	
 		jr	c,f8
@@ -419,6 +434,8 @@ f8l1		ld	a,(hl)
 		ld	(hl),a
 		inc	hl
 		djnz	f8l1
+		call	putwrk
+		call	wkey
 		jr	ed
 getwrk		call	getadr
 		ld	de,work
@@ -450,13 +467,19 @@ getbit		ld	a,(crd)
 		add	hl,de
 		ld	a,(crd)
 		and	7
-		ld	b,1
+		ld	b,$80
 bitlp		and	a
 		jr	z,retbit
-		rlc	b
+		rrc	b
 		dec	a
 		jr	bitlp
 retbit		ld	a,b
+		ret	
+wkey		xor	a
+		in	a,($fe)
+		or	$e0
+		xor	$ff
+		jr	nz,wkey
 		ret	
 work		ds	8
 help		ds	8
