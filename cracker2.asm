@@ -4,21 +4,30 @@
 		im	1
 		call	cls
 		call	wrcpyr
-		ld	ix,23296
+prlop		ld	ix,23296
 loop		call	wrttxt
 		push	ix
 		pop	hl
-		call	txtscr
+		ld	de,$4800
+		ld	bc,$800
+		ldir	
+		ld	bc,63486
+		in	a,(c)
+		rra	
+		jr	nc,prlop
+		rra	
+		jp	nc,sto1
+		rra	
+		jp	nc,rcl1
+		rra	
+		jp	nc,sto2
+		rra	
+		jp	nc,rcl2
 		ld	bc,61438
 		in	a,(c)
 		rra	
 		jp	nc,edit
-		ld	bc,63486
-		in	a,(c)
-		rra	
-		jr	c,nxt1
-		ld	ix,23296
-nxt1		ld	bc,57342
+		ld	bc,57342
 		in	a,(c)
 		ld	de,768
 		rra	
@@ -42,10 +51,10 @@ nxt1		ld	bc,57342
 		ld	de,8
 		rra	
 		jr	nc,add
-		ld	de,32
+		ld	de,256
 		rra	
 		jr	nc,add
-		ld	de,768
+		ld	de,1024
 		rra	
 		jr	nc,add
 		ld	de,2048
@@ -59,9 +68,9 @@ next		push	ix
 		xor	a
 		ld	h,b
 		ld	l,c
-		ld	e,"0"
-		ld	bc,$d8f0
 		ld	iy,16544
+ptnmb		ld	e,"0"
+		ld	bc,$d8f0
 		jp	wr1
 save		push	ix
 		ld	a,$ff
@@ -103,6 +112,29 @@ wrttxt2		ld	a,(hl)
 		inc	hl
 		inc	d
 		djnz	wrttxt1
+		ld	hl,$4000
+		ld	de,23040
+		ld	a,8
+mglp1		push	hl
+		ld	c,4
+mglp2		ld	b,8
+mglp3		rr	(hl)
+		jr	c,mglp4
+		ex	de,hl
+		ld	(hl),%01111111
+		jr	mglp5
+mglp4		ex	de,hl
+		ld	(hl),%01000000
+mglp5		ex	de,hl
+		inc	de
+		djnz	mglp3
+		inc	hl
+		dec	c
+		jr	nz,mglp2
+		pop	hl
+		inc	h
+		dec	a
+		jr	nz,mglp1
 		ret	
 cls		ld	hl,$4000
 		ld	de,$4001
@@ -160,15 +192,6 @@ spce		ld	a,"0"
 		jr	prtchr
 prtnr		add	$30
 prtchr		push	hl
-		ld	b,a
-		and	$80
-		jr	z,zero
-		ld	a,$ff
-		jr	prtng
-zero		xor	a
-prtng		push	af
-		ld	a,b
-		and	$7f
 		ld	l,a
 		ld	h,0
 		ld	de,script-256
@@ -178,11 +201,8 @@ prtng		push	af
 		add	hl,de
 		push	iy
 		pop	de
-		pop	af
-		ld	c,a
 		ld	b,8
 prtlp		ld	a,(hl)
-		xor	c
 		ld	(de),a
 		inc	hl
 		inc	d
@@ -190,7 +210,7 @@ prtlp		ld	a,(hl)
 		inc	iy
 		pop	hl
 		ret	
-text		dm	"The CRACKER 2   "
+text		dm	"The CRACKER 2  "
 		db	127
 		dm	" 1988 ROM"'
 wrcpyr		ld	iy,16576
@@ -204,12 +224,7 @@ wrcpyr1		ld	a,(hl)
 wrcpyr2		res	7,a
 		call	prtchr
 		ret	
-sopti		xor	a
-		in	a,($fe)
-		or	$e0
-		xor	$ff
-		jr	nz,sopti
-		ld	a,(FLAG)
+sopti		ld	a,(FLAG)
 		and	a
 		jr	nz,saveo
 		ld	a,$ff
@@ -243,161 +258,210 @@ saveo1		ld	a," "
 		jp	next
 FLAG		db	0
 start		dw	0
-txtscr		ld	iy,$4800
-		ld	de,256
-txt1		ld	a,(hl)
+sto1		ld	hl,m1
+		ld	iy,16480
+		jr	sto
+sto2		ld	hl,m2
+		ld	iy,16496
+sto		ld	a,xl
+		ld	(hl),a
 		inc	hl
-		ld	b,a
-		and	$80
-		ld	c,a
-		ld	a,b
-		and	$7f
-		cp	32
-		jr	nc,pr
-		ld	a,"."
-pr		or	c
-		push	de
-		call	prtchr
-		pop	de
-		dec	de
-		ld	a,d
-		or	e
-		jr	nz,txt1
-		ret	
-edit		xor	a
-		ld	(crd),a
-edlp		call	clat
+		ld	a,xh
+		ld	(hl),a
 		push	ix
 		pop	hl
-		call	txtscr
+		jp	ptnmb
+rcl1		ld	hl,m1
+		jr	rcl
+rcl2		ld	hl,m2
+rcl		ld	a,(hl)
+		ld	xl,a
+		inc	hl
+		ld	a,(hl)
+		ld	xh,a
+		jp	next
+edit		xor	a
+		ld	(crd),a
+edlp		call	wrttxt
 		ld	a,(crd)
 		ld	e,a
 		ld	d,0
-		ld	hl,22784
+		ld	hl,23040
 		add	hl,de
-		ld	a,64
-		or	(hl)
+		ld	a,(hl)
+		xor	%00001001
 		ld	(hl),a
-		call	getkey
-		cp	32
-		jr	nc,edtxt
-		cp	8
-		jr	nz,ed1
-		ld	a,(crd)
-		dec	a
-		ld	(crd),a
-		jr	edlp
-ed1		cp	9
-		jr	nz,ed2
+		ld	bc,57342
+		in	a,(c)
+		rra	
+		jr	c,p1
+		ex	af,af'
 		ld	a,(crd)
 		inc	a
 		ld	(crd),a
-		jr	edlp
-ed2		cp	10
-		jr	nz,ed3
+		ex	af,af'
+p1		rra	
+		jr	c,p2
 		ld	a,(crd)
-		add	32
+		inc	a
 		ld	(crd),a
-		jr	edlp
-ed3		cp	11
-		jr	nz,ed4
+p2		ld	bc,64510
+		in	a,(c)
+		rra	
+		jr	c,p3
 		ld	a,(crd)
 		sub	32
 		ld	(crd),a
-		jr	edlp
-ed4		cp	13
-		jr	nz,ed5
-		call	clat
-		jp	loop
-ed5		cp	12
-		jr	nz,edlp
+p3		ld	bc,65022
+		in	a,(c)
+		rra	
+		jr	c,p4
 		ld	a,(crd)
-		ld	e,a
-		ld	d,0
-		push	ix
-		pop	hl
-		add	hl,de
-		ld	a,(hl)
-		xor	$80
-		ld	(hl),a
-		jr	edlp
-edtxt		push	af
-		ld	a,(crd)
-		ld	e,a
-		ld	d,0
-		push	ix
-		pop	hl
-		add	hl,de
-		ld	a,(hl)
-		and	$80
-		ld	b,a
-		pop	af
-		or	b
-		ld	(hl),a
-		ld	a,(crd)
-		inc	a
+		add	32
 		ld	(crd),a
-		jp	edlp
-getkey		call	key?
-		call	gky
-		ld	a,d
-		cp	39
-		ld	hl,caps
-		jr	z,decode
-		ld	hl,symbl
-		cp	24
-		jr	z,decode
-		ld	hl,norm
-decode		ld	d,0
-		add	hl,de
+p4		ld	bc,65278
+		in	a,(c)
+		rra	
+		jr	c,f1
+		call	getwrk
+		ld	hl,work
+		ld	de,help+7
+		ld	b,8
+f0l1		ld	a,(hl)
+		ld	(de),a
+		inc	hl
+		dec	de
+		djnz	f0l1
+		ld	hl,help
+		ld	de,work
+		ld	bc,8
+		ldir	
+		call	putwrk
+edp		jr	edlp
+f1		rra	
+		jr	c,f2
+		call	getwrk
+		ld	hl,work
+		ld	b,8
+f1l1		ld	c,0
 		ld	a,(hl)
-		ret	
-norm		dm	"bhy65tgv"
-		dm	"nju74rfc"
-		dm	"mki83edx"
-		dm	" lo92wsz"
-		dm	" "
-		db	13
-		dm	"p01qa "
-caps		db	"B","H","Y",10,8,"T","G","V"
-		db	"N","J","U",11,"4","R","F","C"
-		db	"M","K","I",9,"3","E","D","X"
-		dm	" LO92WSZ"
-		dm	" "
-		db	13
-		db	"P",12,"1","Q","A"," "
-symbl		dm	"*↑[&%>}/"
-		dm	",-]'$<{?"
-		dm	".+"
-		db	127
-		dm	"(# \£"
-		dm	" =;)@ |:"
-		dm	" "
-		db	13,34
-		dm	"_! ~ "
-crd		dw	0
-key?		call	$28e
-		ld	a,e
-		cp	255
-		ret	z
-		cp	$27
-		ret	z
-		cp	$18
-		ret	z
-		jr	key?
-clat		ld	hl,$5900
-		ld	de,$5901
-		ld	bc,255
-		ld	(hl),%00111000
+		ld	d,8
+f1l2		rra	
+		rl	c
+		dec	d
+		jr	nz,f1l2
+		inc	hl
+		djnz	f1l1
+		call	putwrk
+		jr	edp
+f2		rra	
+		jr	c,f3
+		call	getwrk
+		ld	hl,work
+		ld	de,stre
+		ld	bc,8
+		ldir	
+		jr	edp
+f3		rra	
+		jr	c,f4
+		ld	hl,stre
+		ld	de,work
+		ld	bc,8
+		ldir	
+		call	putwrk
+ep		jr	edp
+f4		rra	
+		jr	c,f5
+		ld	hl,stre
+		ld	b,8
+f4l1		ld	(hl),0
+		inc	hl
+		djnz	f4l1
+		call	putwrk
+f5		ld	bc,32766
+		in	a,(c)
+		rra	
+		jp	nc,next
+		rra	
+		jr	c,f6
+		call	getwrk
+		call	getbit
+		cpl	
+		ld	b,a
+		ld	a,(hl)
+		and	b
+		ld	(hl),a
+		call	putwrk
+		jr	ep
+f6		rra	
+		jr	c,f7
+		call	getwrk
+		call	getbit
+		xor	(hl)
+		ld	(hl),a
+		call	putwrk
+ed		jr	ep
+f7		rra	
+		jr	c,f8
+		call	getwrk
+		call	getbit
+		or	(hl)
+		ld	(hl),a
+		call	putwrk
+		jr	ed
+f8		rra	
+		jp	c,edlp
+		call	getwrk
+		ld	hl,work
+		ld	b,8
+f8l1		ld	a,(hl)
+		cpl	
+		ld	(hl),a
+		inc	hl
+		djnz	f8l1
+		jr	ed
+getwrk		call	getadr
+		ld	de,work
+		ld	bc,8
 		ldir	
 		ret	
-gky		call	$28e
-		ld	a,e
-		cp	255
-		jr	z,gky
-		cp	$27
-		jr	z,gky
-		cp	$18
-		jr	z,gky
+getadr		push	ix
+		pop	hl
+		ld	a,(crd)
+		and	%00011000
+		ld	e,a
+		ld	d,0
+		add	hl,de
 		ret	
+putwrk		call	getadr
+		ex	de,hl
+		ld	hl,work
+		ld	bc,8
+		ldir	
+		ret	
+getbit		ld	a,(crd)
+		ld	hl,work
+		rlca	
+		rlca	
+		rlca	
+		and	7
+		ld	e,a
+		ld	d,0
+		add	hl,de
+		ld	a,(crd)
+		and	7
+		ld	b,1
+bitlp		and	a
+		jr	z,retbit
+		rlc	b
+		dec	a
+		jr	bitlp
+retbit		ld	a,b
+		ret	
+work		ds	8
+help		ds	8
+stre		ds	8
+m1		dw	0
+m2		dw	0
+crd		db	0
 script		ds	768
