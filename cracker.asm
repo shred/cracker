@@ -314,7 +314,9 @@ ed5		cp	12
 		ld	a,(crd)
 		ld	e,a
 		ld	d,0
-		add	ix,de
+		push	ix
+		pop	hl
+		add	hl,de
 		ld	a,(hl)
 		xor	$80
 		ld	(hl),a
@@ -323,7 +325,9 @@ edtxt		push	af
 		ld	a,(crd)
 		ld	e,a
 		ld	d,0
-		add	ix,de
+		push	ix
+		pop	hl
+		add	hl,de
 		ld	a,(hl)
 		and	$80
 		ld	b,a
@@ -334,20 +338,15 @@ edtxt		push	af
 		inc	a
 		ld	(crd),a
 		jp	edlp
-getkey		xor	a
-		in	a,($fe)
-		or	$e0
-		xor	$ff
-		jr	nz,getkey
+getkey		call	$28e
+		jr	z,getkey
 getlp1		call	$28e
 		jr	nz,getlp1
 		ld	a,d
-		and	a
-		jr	z,decnrm
-		cp	$28
+		cp	39
 		jr	z,deccps
-		cp	$18
-		jr	nz,getlp1
+		cp	24
+		jr	nz,decnrm
 		ld	hl,symbl
 		jr	decode
 deccps		ld	hl,caps
