@@ -1,7 +1,5 @@
 		org	$5000
 		ld	sp,$5800
-		ld	a,2
-		call	$1601
 		di	
 		im	1
 		call	cls
@@ -44,25 +42,17 @@ loop		call	wrttxt
 		rra	
 		jr	nc,add
 		call	tstld
-next		ld	a,22
-		rst	$10
-		ld	a,5
-		rst	$10
-		xor	a
-		rst	$10
-		push	ix
+next		push	ix
 		pop	bc
-		ld	hl,loop
-		push	hl
-		push	de
-		push	hl
+		ld	a,7
+		out	($fe),a
 		xor	a
 		ld	h,b
 		ld	l,c
 		ld	e," "
 		ld	bc,$d8f0
-		call	$192a
-		jp	$1a30
+		ld	iy,16544
+		jp	wr1
 save		push	ix
 		ld	a,$ff
 		call	$4c6
@@ -111,10 +101,10 @@ cls		ld	hl,$4000
 		ldir	
 		ld	hl,$5800
 		ld	de,$5801
-		ld	bc,511
+		ld	bc,512
 		ld	(hl),%00111000
 		ldir	
-		ld	bc,255
+		ld	bc,256
 		ld	(hl),%00111111
 		ldir	
 		ret	
@@ -139,3 +129,42 @@ tstld		ld	a,$bf
 		call	$569
 		di	
 		ret	
+wr1		call	h192a
+		ld	bc,$fc18
+		call	h192a
+		ld	bc,$ff9c
+		call	h192a
+		ld	c,$f6
+		call	h192a
+		ld	a,l
+		call	prtnr
+		jp	loop
+h192a		xor	a
+h192a_1		add	hl,bc
+		inc	a
+		jr	c,h192a_1
+		sbc	hl,bc
+		dec	a
+		jr	z,spce
+		jr	prtnr
+spce		ld	a," "
+		jr	prtchr
+prtnr		add	$30
+prtchr		ld	l,a
+		ld	h,0
+		ld	de,script-256
+		add	hl,hl
+		add	hl,hl
+		add	hl,hl
+		add	hl,de
+		push	iy
+		pop	de
+		ld	b,8
+prtlp		ld	a,(hl)
+		ld	(de),a
+		inc	hl
+		inc	d
+		djnz	prtlp
+		inc	iy
+		ret	
+script		ds	768
