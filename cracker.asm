@@ -50,7 +50,7 @@ next		push	ix
 		xor	a
 		ld	h,b
 		ld	l,c
-		ld	e," "
+		ld	e,"0"
 		ld	bc,$d8f0
 		ld	iy,16544
 		jp	wr1
@@ -135,7 +135,7 @@ wr1		call	h192a
 		call	h192a
 		ld	bc,$ff9c
 		call	h192a
-		ld	c,$f6
+		ld	bc,$f6
 		call	h192a
 		ld	a,l
 		call	prtnr
@@ -148,7 +148,7 @@ h192a_1		add	hl,bc
 		dec	a
 		jr	z,spce
 		jr	prtnr
-spce		ld	a," "
+spce		ld	a,"0"
 		jr	prtchr
 prtnr		add	$30
 prtchr		push	hl
