@@ -3,6 +3,7 @@
 		di	
 		im	1
 		call	cls
+		call	wrcpyr
 		ld	ix,$8000
 loop		call	wrttxt
 		push	ix
@@ -150,7 +151,8 @@ h192a_1		add	hl,bc
 spce		ld	a," "
 		jr	prtchr
 prtnr		add	$30
-prtchr		ld	l,a
+prtchr		push	hl
+		ld	l,a
 		ld	h,0
 		ld	de,script-256
 		add	hl,hl
@@ -166,5 +168,20 @@ prtlp		ld	a,(hl)
 		inc	d
 		djnz	prtlp
 		inc	iy
+		pop	hl
+		ret	
+text		dm	"The CRACKER 1  "
+		db	127
+		dm	" 1987 ROM"'
+wrcpyr		ld	iy,16576
+		ld	hl,text
+wrcpyr1		ld	a,(hl)
+		bit	7,a
+		jr	nz,wrcpyr2
+		call	prtchr
+		inc	hl
+		jr	wrcpyr1
+wrcpyr2		res	7,a
+		call	prtchr
 		ret	
 script		ds	768
