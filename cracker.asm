@@ -216,7 +216,7 @@ saveo1		ld	a," "
 		ex	de,hl
 		ld	a,$ff
 		call	$4c6
-		ret	
+		jp	next
 FLAG		db	0
 start		dw	0
 script		ds	768
