@@ -339,22 +339,14 @@ edtxt		push	af
 		ld	(crd),a
 		jp	edlp
 getkey		call	key?
-getlp1		call	$28e
-		jr	nz,getlp1
+		call	gky
 		ld	a,d
 		cp	39
-		jr	z,deccps
-		cp	24
-		jr	nz,decnrm
+		ld	hl,caps
+		jr	z,decode
 		ld	hl,symbl
-		jr	decode
-deccps		ld	hl,caps
-		jr	decode
-decnrm		ld	a,e
-		cp	39
-		jr	z,getlp1
 		cp	24
-		jr	z,getlp1
+		jr	z,decode
 		ld	hl,norm
 decode		ld	d,0
 		add	hl,de
@@ -398,5 +390,14 @@ clat		ld	hl,$5900
 		ld	bc,255
 		ld	(hl),%00111000
 		ldir	
+		ret	
+gky		call	$28e
+		ld	a,e
+		cp	255
+		jr	z,gky
+		cp	$27
+		jr	z,gky
+		cp	$18
+		jr	z,gky
 		ret	
 script		ds	768
