@@ -1,4 +1,4 @@
-		org	$5800
+		org	$5000
 		ld	sp,$5800
 		di	
 		im	1
@@ -67,9 +67,9 @@ next		push	ix
 		xor	a
 		ld	h,b
 		ld	l,c
+		ld	iy,16544
 prtnmb		ld	e,"0"
 		ld	bc,$d8f0
-		ld	iy,16544
 		jp	wr1
 save		push	ix
 		ld	a,$ff
@@ -318,7 +318,7 @@ ed6		cp	1
 		inc	(hl)
 elp		jr	edlp
 ed7		cp	2
-		jr	nz,ed7
+		jr	nz,ed8
 		call	getcrd
 		ld	(hl),31
 		jp	elp
