@@ -42,10 +42,10 @@ nxt1		ld	bc,57342
 		ld	de,8
 		rra	
 		jr	nc,add
-		ld	de,256
+		ld	de,32
 		rra	
 		jr	nc,add
-		ld	de,1024
+		ld	de,768
 		rra	
 		jr	nc,add
 		ld	de,2048
@@ -266,11 +266,11 @@ pr		or	c
 		ret	
 edit		xor	a
 		ld	(crd),a
-edlp		ld	a,(crd)
-		call	cls
+edlp		call	clat
 		push	ix
 		pop	hl
 		call	txtscr
+		ld	a,(crd)
 		ld	e,a
 		ld	d,0
 		ld	hl,22784
@@ -307,8 +307,8 @@ ed3		cp	11
 		jr	edlp
 ed4		cp	13
 		jr	nz,ed5
-		call	cls
-		ret	
+		call	clat
+		jp	loop
 ed5		cp	12
 		jr	nz,edlp
 		ld	a,(crd)
@@ -338,8 +338,7 @@ edtxt		push	af
 		inc	a
 		ld	(crd),a
 		jp	edlp
-getkey		call	$28e
-		jr	z,getkey
+getkey		call	key?
 getlp1		call	$28e
 		jr	nz,getlp1
 		ld	a,d
@@ -351,7 +350,12 @@ getlp1		call	$28e
 		jr	decode
 deccps		ld	hl,caps
 		jr	decode
-decnrm		ld	hl,norm
+decnrm		ld	a,e
+		cp	39
+		jr	z,getlp1
+		cp	24
+		jr	z,getlp1
+		ld	hl,norm
 decode		ld	d,0
 		add	hl,de
 		ld	a,(hl)
@@ -363,21 +367,36 @@ norm		dm	"bhy65tgv"
 		dm	" "
 		db	13
 		dm	"p01qa "
-caps		dm	"BHY65TGV"
-		dm	"NJU74RFC"
-		dm	"MKI83EDX"
+caps		db	"B","H","Y",10,8,"T","G","V"
+		db	"N","J","U",11,"4","R","F","C"
+		db	"M","K","I",9,"3","E","D","X"
 		dm	" LO92WSZ"
 		dm	" "
 		db	13
-		dm	"P01QA "
+		db	"P",12,"1","Q","A"," "
 symbl		dm	"*↑[&%>}/"
 		dm	",-]'$<{?"
 		dm	".+"
 		db	127
-		dm	"(#\£"
-		dm	" =;)@|:"
+		dm	"(# \£"
+		dm	" =;)@ |:"
 		dm	" "
 		db	13,34
-		dm	"_!~ "
+		dm	"_! ~ "
 crd		dw	0
+key?		call	$28e
+		ld	a,e
+		cp	255
+		ret	z
+		cp	$27
+		ret	z
+		cp	$18
+		ret	z
+		jr	key?
+clat		ld	hl,$5900
+		ld	de,$5901
+		ld	bc,255
+		ld	(hl),%00111000
+		ldir	
+		ret	
 script		ds	768
