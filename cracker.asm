@@ -25,6 +25,8 @@ loop		call	wrttxt
 		ld	de,6912
 		rra	
 		jr	nc,save
+		rra	
+		jp	nc,sopti
 		ld	a,$f9
 		in	a,($fe)
 		ld	de,1
@@ -114,8 +116,7 @@ tstld		ld	a,$bf
 		or	$e0
 		xor	$ff
 		ret	z
-		ld	ix,$5c00
-		ld	de,$a400
+		ld	de,42240
 		ld	a,$ff
 		scf	
 		inc	d
@@ -135,7 +136,7 @@ wr1		call	h192a
 		call	h192a
 		ld	bc,$ff9c
 		call	h192a
-		ld	bc,$f6
+		ld	bc,$fff6
 		call	h192a
 		ld	a,l
 		call	prtnr
@@ -184,4 +185,38 @@ wrcpyr1		ld	a,(hl)
 wrcpyr2		res	7,a
 		call	prtchr
 		ret	
+sopti		ld	a,(FLAG)
+		and	a
+		jr	nz,saveo
+		ld	a,$ff
+		ld	(FLAG),a
+		ld	(start),ix
+		ld	iy,16560
+		ld	e,"0"
+		ld	bc,$d8f0
+		push	ix
+		pop	hl
+		jp	wr1
+saveo		ld	iy,16560
+		ld	h,6
+saveo1		ld	a," "
+		call	prtchr
+		dec	h
+		jr	nz,saveo1
+		xor	a
+		ld	(FLAG),a
+		push	ix
+		ld	hl,(start)
+		push	hl
+		pop	ix
+		pop	de
+		ex	de,hl
+		and	a
+		sbc	hl,de
+		ex	de,hl
+		ld	a,$ff
+		call	$4c6
+		ret	
+FLAG		db	0
+start		dw	0
 script		ds	768
