@@ -4,6 +4,7 @@
 		call	$1601
 		di	
 		im	1
+		call	cls
 		ld	ix,$8000
 loop		call	wrttxt
 		push	ix
@@ -31,8 +32,10 @@ loop		call	wrttxt
 		rra	
 		jr	nc,add
 		ld	de,8
+		rra	
 		jr	nc,add
 		ld	de,256
+		rra	
 		jr	nc,add
 		ld	de,1024
 		rra	
@@ -40,7 +43,8 @@ loop		call	wrttxt
 		ld	de,2048
 		rra	
 		jr	nc,add
-		ld	a,22
+		call	tstld
+next		ld	a,22
 		rst	$10
 		ld	a,5
 		rst	$10
@@ -63,21 +67,21 @@ save		push	ix
 		ld	a,$ff
 		call	$4c6
 		pop	ix
-		jr	loop
+		jr	next
 add		ld	a,$fd
 		in	a,($fe)
 		or	$e0
 		xor	$ff
 		jr	nz,sub
 		add	ix,de
-		jp	loop
+		jp	next
 sub		push	ix
 		pop	hl
 		and	a
 		sbc	hl,de
 		push	hl
 		pop	ix
-		jp	loop
+		jp	next
 wrttxt		push	ix
 		pop	hl
 		ld	de,$4000
@@ -99,4 +103,39 @@ wrttxt2		ld	a,(hl)
 		inc	hl
 		inc	d
 		djnz	wrttxt1
+		ret	
+cls		ld	hl,$4000
+		ld	de,$4001
+		ld	bc,$fff
+		ld	(hl),0
+		ldir	
+		ld	hl,$5800
+		ld	de,$5801
+		ld	bc,511
+		ld	(hl),%00111000
+		ldir	
+		ld	bc,255
+		ld	(hl),%00111111
+		ldir	
+		ret	
+tstld		ld	a,$bf
+		in	a,($fe)
+		or	$e0
+		xor	$ff
+		ret	z
+		ld	ix,$5c00
+		ld	de,$a400
+		ld	a,$ff
+		scf	
+		inc	d
+		ex	af,af'
+		dec	d
+		di	
+		ld	a,$0e
+		out	($fe),a
+		in	a,($fe)
+		rra	
+		and	$20
+		call	$569
+		di	
 		ret	
