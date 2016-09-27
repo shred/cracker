@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="cracker" default="all" basedir=".">
+    <description>
+        Two Tiny Crackers
+    </description>
+
+    <!-- Global Properties -->
+    <property name="dist" location="dist" />
+
+    <!-- Initialize Project -->
+    <target name="init" description="initialize">
+        <tstamp />
+        <mkdir dir="${dist}" />
+    </target>
+
+    <!-- Assemble sources -->
+    <target name="assemble" depends="init" description="assemble">
+        <exec executable="zasm" failonerror="true">
+            <arg value="--cycles" />
+            <arg value="-i" />
+            <arg value="cracker1.asm" />
+            <arg value="-o" />
+            <arg value="${dist}" />
+        </exec>
+        <exec executable="zasm" failonerror="true">
+            <arg value="--cycles" />
+            <arg value="-i" />
+            <arg value="cracker2.asm" />
+            <arg value="-o" />
+            <arg value="${dist}" />
+        </exec>
+    </target>
+
+    <!-- Build all -->
+    <target name="all" depends="assemble" description="build all">
+    </target>
+
+    <!-- Run -->
+    <target name="run1" depends="all" description="run">
+        <exec executable="fuse">
+            <arg value="${dist}/cracker1.sna" />
+        </exec>
+    </target>
+    <target name="run2" depends="all" description="run">
+        <exec executable="fuse">
+            <arg value="${dist}/cracker2.sna" />
+        </exec>
+    </target>
+
+    <!-- Clean up -->
+    <target name="clean" description="clean up">
+        <delete dir="${dist}" />
+    </target>
+
+</project>
