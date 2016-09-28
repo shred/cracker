@@ -224,7 +224,7 @@ cls		ld	hl,$4000	; delete upper third
 		ld	bc,512
 		ld	(hl),%00111000
 		ldir
-		ld	bc,256		; hide bytecode by setting
+		ld	bc,255		; hide bytecode by setting
 		ld	(hl),%00111111	; paper:7 ink:7
 		ldir
 		ret
