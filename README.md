@@ -1,5 +1,7 @@
 # The CRACKER
 
+> **THIS PROJECT HAS MOVED TO [CODEBERG](https://codeberg.org/shred/cracker)**
+
 The CRACKER are two tiny tools for the ZX Spectrum that I wrote in 1988. They can be used for scanning files for bitmaps, fonts and texts. They also contain a simple text or font editor, so binaries can be manipulated on the fly.
 
 * _The CRACKER 1_: Search for texts and fonts, and edit texts.
