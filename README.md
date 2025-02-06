@@ -98,8 +98,8 @@ The original source code was for the _SYS_ assembler by Individual Software (Mic
 
 If you would like to contribute:
 
-* Fork the [Source code at GitHub](https://github.com/shred/cracker). Feel free to send pull requests.
-* Found a bug? [File a bug report!](https://github.com/shred/cracker/issues)
+* Fork the [Source code at Codeberg](https://codeberg.org/shred/cracker). Feel free to send pull requests.
+* Found a bug? [File a bug report!](https://codeberg.org/shred/cracker/issues)
 
 ## License
 
